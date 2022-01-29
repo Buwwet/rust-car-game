@@ -1,6 +1,11 @@
 mod utils;
+mod components;
+mod systems;
 
-use specs::*;
+
+
+
+use specs::{World, Builder, WorldExt, System, RunNow};
 
 use wasm_bindgen::prelude::*;
 
@@ -11,16 +16,6 @@ use wasm_bindgen::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-extern {
-    fn alert(s: &str);
-}
-
-#[wasm_bindgen]
-pub fn greet() {
-    alert("Hello!");
-}
-
-#[wasm_bindgen]
 pub struct GameContainer {
     world: World,
 }
@@ -28,22 +23,26 @@ pub struct GameContainer {
 #[wasm_bindgen]
 impl GameContainer {
     pub fn create() -> GameContainer {
+        // The Specs world contains our Resources and Entites.
+        let mut world = World::new();
+
+        // Dispatcher contains all of the Systems needed to run
+        // physics, here we'll set it up, later we'll need to use
+        // dispatcher.dispatch(&mut world). 
+        let mut dispatcher = systems::system_dispatcher();
+        dispatcher.setup(&mut world);
+        
         GameContainer {
-            world: World::new(),
+            world,
         }
     }
     pub fn run_systems(&mut self) {
-        let mut gls = GameLogSystem {};
-        gls.run_now(&self.world);
+        // We would have stored the dispatcher
+        // inside of the GameContainer but lifetimes
+        // aren't supported by wasm.
+        let mut dispatcher = systems::system_dispatcher();
+        dispatcher.dispatch(&self.world);
+
     }
 }
 
-// Dummy System.
-pub struct GameLogSystem {}
-impl <'a>System<'a> for GameLogSystem {
-    type SystemData = ();
-
-    fn run(&mut self, data: Self::SystemData) {
-        alert("its scot the woz");
-    }
-}
