@@ -2,9 +2,7 @@ mod utils;
 mod components;
 mod systems;
 
-
-
-
+use rapier3d::prelude::{RigidBodySet, ColliderSet};
 use specs::{World, Builder, WorldExt, System, RunNow};
 
 use wasm_bindgen::prelude::*;
@@ -17,7 +15,9 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
 pub struct GameContainer {
-    world: World,
+
+
+    world: World, //specs
 }
 
 #[wasm_bindgen]
@@ -26,8 +26,15 @@ impl GameContainer {
         // The Specs world contains our Resources and Entites.
         let mut world = World::new();
 
-        // Dispatcher contains all of the Systems needed to run
-        // physics, here we'll set it up, later we'll need to use
+        // Insert the resources
+        world.insert::<RigidBodySet>(RigidBodySet::new());
+        world.insert::<ColliderSet>(ColliderSet::new());
+
+        // Register the components
+        components::register_components(&mut world);
+
+        // Dispatcher contains all of the Systems, here we'll set it up, 
+        //later we'll need to use
         // dispatcher.dispatch(&mut world). 
         let mut dispatcher = systems::system_dispatcher();
         dispatcher.setup(&mut world);
