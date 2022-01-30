@@ -60,13 +60,14 @@ impl GameContainer {
         // Fetch Components
         let names = self.world.read_storage::<ModelName>();
         let physics_objects = self.world.read_storage::<PhysicsObject>();
+        let entities = self.world.entities();
 
         // Fetch rigidbodies.
         let rigidbody_set = self.world.read_resource::<RigidBodyContainer>();
         
 
         // Find all entites with these components.
-        for (name, ps_object) in (&names, &physics_objects).join() {
+        for (name, ps_object, entity) in (&names, &physics_objects, &entities).join() {
             // Use the object's rigidbody handle to find the rigidbody.
             let rigidbody = rigidbody_set.0.get(ps_object.rigidbody).unwrap();
 
@@ -74,9 +75,10 @@ impl GameContainer {
             let pos: Vector3<f32> = rigidbody.position().translation.vector.xyz();
             let rot = rigidbody.rotation().euler_angles();
 
-
+            // Form the Object
             let object: GameObject = GameObject {
                 name: name.name.clone(),
+                id: entity.id(),
                 pos: vec![pos[0], pos[1], pos[2]],
                 rot: vec![rot.0, rot.1, rot.2],
             };
@@ -98,8 +100,36 @@ impl GameContainer {
 #[derive(Serialize)]
 pub struct GameObject {
     name: String,
+    id: u32,
     pos: Vec<f32>,
     rot: Vec<f32>,
+}
+
+// Implement getter fuctions.
+#[wasm_bindgen]
+impl GameObject {
+    pub fn name(&self) -> JsString {
+        self.name.clone().into()
+    }
+    pub fn id(&self) -> u32 {
+        self.id
+    }
+    pub fn pos(&self) -> Array {
+        let pos_array = Array::new_with_length(3);
+        // The array shouldn't have more than 3 items.
+        for index in 0..2 {
+            pos_array.set(index as u32, self.pos[index].into());
+        };
+        pos_array
+    }
+    pub fn rot(&self) -> Array {
+        let rot_array = Array::new_with_length(3);
+        // The array shouldn't have more than 3 items.
+        for index in 0..2 {
+            rot_array.set(index as u32, self.rot[index].into());
+        };
+        rot_array
+    }
 }
 
 #[wasm_bindgen]
