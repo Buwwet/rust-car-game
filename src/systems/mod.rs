@@ -1,31 +1,22 @@
-use shred::{DispatcherBuilder, System, Dispatcher};
+
 use wasm_bindgen::prelude::wasm_bindgen;
+use specs::{Dispatcher, DispatcherBuilder, System, World, RunNow, WorldExt};
 
+use self::run_physics::PhysicsSystem;
 // Import our systems and create a
-// Dispatcher our of it.
+// function out of it
 
-pub fn system_dispatcher() -> Dispatcher<'static, 'static> {
-    // A Dispatcher can setup Systems for a World and
-    // also run them in paralel.
-    let mut dispatcher = DispatcherBuilder::new()
-        .with(GameLogSystem {}, "GameLogSystem", &[])
-        .build();
+mod run_physics;
+pub mod init;
 
-    dispatcher
-}
-
-#[wasm_bindgen]
-extern {
-    fn alert(s: &str);
-}
-
-// Dummy System.
-pub struct GameLogSystem {}
-impl <'a>System<'a> for GameLogSystem {
-    type SystemData = ();
-
-    fn run(&mut self, data: Self::SystemData) {
-        alert("its scot the woz");
+pub fn run_systems(world: &mut World) {
+    // We cannot use a Dispatcher in WebAssembly :(
+    { 
+        // Run Physics Step System
+        let mut ps = PhysicsSystem {};
+        ps.run_now(world);
+        
     }
-}
 
+    world.maintain();
+}

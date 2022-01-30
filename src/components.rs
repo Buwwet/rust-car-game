@@ -1,10 +1,9 @@
 use rapier3d::prelude::{ColliderHandle, RigidBodyHandle};
-use shred::World;
-use specs::{Component, VecStorage, WorldExt};
+use specs::{Component, VecStorage, WorldExt, World};
 
 pub fn register_components(world: &mut World) {
     world.register::<PlayerCar>();
-    world.register::<DynamicObject>();
+    world.register::<PhysicsObject>();
 
     world.register::<StaticObject>();
     world.register::<ModelName>();
@@ -12,23 +11,23 @@ pub fn register_components(world: &mut World) {
 
 #[derive(Component)]
 #[storage(VecStorage)]
-struct StaticObject {
+pub struct StaticObject {
     pub colliders: Vec<ColliderHandle>
 }
 
 #[derive(Component)]
 #[storage(VecStorage)]
-struct DynamicObject {
+pub struct PhysicsObject {
     pub rigidbody: RigidBodyHandle,
     pub colliders: Vec<ColliderHandle>,
 }
 
 #[derive(Component)]
 #[storage(VecStorage)]
-struct PlayerCar {}
+pub struct PlayerCar {}
 
 #[derive(Component)]
 #[storage(VecStorage)]
-struct ModelName {
+pub struct ModelName {
     pub name: String,
 }
