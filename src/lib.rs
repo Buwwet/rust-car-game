@@ -165,6 +165,36 @@ impl GameObject {
 }
 
 #[wasm_bindgen]
+// Used for the index of GameKeysContainer
+pub enum GameKeys {
+    Acceleration = 0,
+    Brakes = 1,
+    Left = 2,
+    Right = 3,
+}
+#[wasm_bindgen]
+#[derive(Clone, Copy, Default, Debug)]
+pub struct GameKeysContainer {
+    keys: [bool; 4],
+}
+
+#[wasm_bindgen]
+impl GameKeysContainer {
+    pub fn new() -> GameKeysContainer {
+        GameKeysContainer::default()
+    }
+    pub fn set(&mut self, idx: usize, value: bool) {
+        self.keys[idx] = value;
+    }
+    pub fn get(&self, idx: usize) -> bool {
+        self.keys[idx]
+    }
+    pub fn log(&self) {
+        log(&format!("{:#?}", &self))
+    }
+}
+
+#[wasm_bindgen]
 extern {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);

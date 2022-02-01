@@ -22,6 +22,8 @@ document.getElementById('root').appendChild(renderer.domElement);
 renderer.setSize(640, 480);
 // Create a game structure
 var game_structure = game_test_1.GameContainer.create();
+// Store keys
+var keys_pressed = game_test_1.GameKeysContainer["new"]();
 var renderLoop = function () {
     // Run the game systems.
     game_structure.run_systems();
@@ -30,7 +32,7 @@ var renderLoop = function () {
     // Create meshes if a gameObject without an id is found, update
     // the positions of the others.
     for (var i = 0; i < gameObjects.len(); i++) {
-        var gameObject = gameObjects.get(i);
+        var gameObject = catch_gameObject(gameObjects, i);
         var entID = gameObject.id();
         var entName = gameObject.name();
         // Check if an object exists with entID and entName
@@ -88,4 +90,42 @@ function create_object(name) {
     // !!! If nothing matches, it returns undefined so watch out!
     throw new Error("Failed to create an object with " + name + " as the model name.");
 }
+// Update keys pressed
+document.onkeydown = function (e) {
+    keys_pressed.log();
+    var key = e.key;
+    switch (key) {
+        // Depending on the key pressed, toggle it.
+        case "w":
+            keys_pressed.set(game_test_1.GameKeys.Acceleration, true);
+            break;
+        case "s":
+            keys_pressed.set(game_test_1.GameKeys.Brakes, true);
+            break;
+        case "a":
+            keys_pressed.set(game_test_1.GameKeys.Left, true);
+            break;
+        case "d":
+            keys_pressed.set(game_test_1.GameKeys.Right, true);
+            break;
+    }
+};
+document.onkeyup = function (e) {
+    var key = e.key;
+    switch (key) {
+        // Depending on the key withheld, toggle it.
+        case "w":
+            keys_pressed.set(game_test_1.GameKeys.Acceleration, false);
+            break;
+        case "s":
+            keys_pressed.set(game_test_1.GameKeys.Brakes, false);
+            break;
+        case "a":
+            keys_pressed.set(game_test_1.GameKeys.Left, false);
+            break;
+        case "d":
+            keys_pressed.set(game_test_1.GameKeys.Right, false);
+            break;
+    }
+};
 requestAnimationFrame(renderLoop);

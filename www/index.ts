@@ -1,4 +1,4 @@
-import {GameContainer, set_panic_hook, GameObjectContainer, PhysicsType} from "game-test";
+import {GameContainer, set_panic_hook, GameObjectContainer, PhysicsType, GameKeys, GameKeysContainer} from "game-test";
 import * as THREE from 'three';
 import { GameObject } from '../pkg/game_test';
 
@@ -29,6 +29,9 @@ renderer.setSize(640, 480);
 
 // Create a game structure
 let game_structure: GameContainer = GameContainer.create();
+// Store keys
+let keys_pressed: GameKeysContainer = GameKeysContainer.new();
+
 
 const renderLoop = () => {
     // Run the game systems.
@@ -40,7 +43,7 @@ const renderLoop = () => {
     // Create meshes if a gameObject without an id is found, update
     // the positions of the others.
     for (var i = 0; i < gameObjects.len(); i++) {
-        let gameObject = gameObjects.get(i);
+        let gameObject = catch_gameObject(gameObjects, i);
         
         let entID = gameObject.id();
         let entName = gameObject.name();
@@ -122,6 +125,44 @@ function create_object(name: string) {
     throw new Error("Failed to create an object with " + name + " as the model name.");
 }
 
-
+// Update keys pressed
+document.onkeydown = (e) => {
+    var key = e.key;
+    switch(key)
+    {
+        // Depending on the key pressed, toggle it.
+        case "w":
+            keys_pressed.set(GameKeys.Acceleration, true);
+            break;
+        case "s":
+            keys_pressed.set(GameKeys.Brakes, true);
+            break;
+        case "a":
+            keys_pressed.set(GameKeys.Left, true);
+            break;
+        case "d":
+            keys_pressed.set(GameKeys.Right, true);
+            break;
+    }
+}
+document.onkeyup = (e) => {
+    var key = e.key;
+    switch(key)
+    {
+        // Depending on the key withheld, toggle it.
+        case "w":
+            keys_pressed.set(GameKeys.Acceleration, false);
+            break;
+        case "s":
+            keys_pressed.set(GameKeys.Brakes, false);
+            break;
+        case "a":
+            keys_pressed.set(GameKeys.Left, false);
+            break;
+        case "d":
+            keys_pressed.set(GameKeys.Right, false);
+            break;
+    }
+}
 
 requestAnimationFrame(renderLoop);
