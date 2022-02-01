@@ -30,7 +30,7 @@ var renderLoop = function () {
     // Create meshes if a gameObject without an id is found, update
     // the positions of the others.
     for (var i = 0; i < gameObjects.len(); i++) {
-        var gameObject = gameObjects.get(i);
+        var gameObject = gameObjects.get(1);
         var entID = gameObject.id();
         var entName = gameObject.name();
         // Check if an object exists with entID and entName
@@ -67,7 +67,7 @@ function update_object(object, gameObject) {
 function create_object(name) {
     // NOTE: these meshes' geometries are just the same values
     // given to the colliders. (but * 2 because those are generated like in a mirror)
-    if (name == "Car") {
+    if (name == "Car00") {
         var carObject = new THREE.Mesh(new THREE.BoxGeometry(4, 2, 8), new THREE.MeshNormalMaterial());
         return carObject;
     }
@@ -75,5 +75,6 @@ function create_object(name) {
         var floorObject = new THREE.Mesh(new THREE.BoxGeometry(200, 0.2, 200), new THREE.MeshBasicMaterial());
         return floorObject;
     }
+    // !!! If nothing matches, it returns undefined so watch out!
 }
 requestAnimationFrame(renderLoop);
