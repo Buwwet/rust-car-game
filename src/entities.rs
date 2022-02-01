@@ -39,7 +39,7 @@ pub fn create_player<'a>(
     lazy.create_entity(&ent)
         .with(PlayerCar {})
         .with(ModelName {
-            name: ['C', 'a', 'r', '0', '0'],
+            name: ['c', 'a', 'r', '0', '0'],
         })
         .with(PhysicsObject {
             object_type: PhysicsType::Dynamic,

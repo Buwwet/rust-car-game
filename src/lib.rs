@@ -40,6 +40,7 @@ impl GameContainer {
         // Register the components
         components::register_components(&mut world);
 
+
         // Run the setup system to spawn our player and floor.
         let mut is = InitSystem {};
         is.run_now(&mut world);
@@ -56,7 +57,7 @@ impl GameContainer {
 
     pub fn log_entities(&self) -> GameObjectContainer {
         // For each entity with PhysicsObject and ModelName, return it to our Javascript inside this container.
-        let mut gameobject_container = GameObjectContainer { data: vec![] };
+        let mut gameobject_container = GameObjectContainer::default();
         
         // Fetch Components
         let names = self.world.read_storage::<ModelName>();
@@ -98,27 +99,32 @@ impl GameContainer {
 
 
 #[wasm_bindgen]
+#[derive(Default, Debug)]
 pub struct GameObjectContainer {
-    data: Vec<GameObject>
+    data: [Option<GameObject>; 32],
+    length: usize,
 }
 
 #[wasm_bindgen]
 impl GameObjectContainer {
-    pub fn len(self) -> u32 {
+    pub fn len(&self) -> u32 {
         // Get length of container for looping
-        self.data.len() as u32
+        self.length as u32
     }
-    pub fn get(self, idx: usize) -> GameObject {
+    pub fn get(&self, idx: usize) -> GameObject {
         // Get GameObject from list.
-        self.data[idx]
+        //log(&format!("{:#?}", self.data[idx]));
+        self.data[idx].unwrap()
     }
     pub fn push(&mut self, object: GameObject) {
-        self.data.push(object);
+        self.data[self.length] = Some(object);
+        self.length += 1;
+        //log(&format!("{:#?}", self.data));
     }
 }
 
 #[wasm_bindgen]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct GameObject {
     name: [char; 5],
     physics: PhysicsType,
@@ -144,7 +150,7 @@ impl GameObject {
     pub fn pos(&self) -> Array {
         let pos_array = Array::new_with_length(3);
         // The array shouldn't have more than 3 items.
-        for index in 0..2 {
+        for index in 0..=2 {
             pos_array.set(index as u32, self.pos[index].into());
         };
         pos_array
@@ -152,7 +158,7 @@ impl GameObject {
     pub fn rot(&self) -> Array {
         let rot_array = Array::new_with_length(3);
         // The array shouldn't have more than 3 items.
-        for index in 0..2 {
+        for index in 0..=2 {
             rot_array.set(index as u32, self.rot[index].into());
         };
         rot_array

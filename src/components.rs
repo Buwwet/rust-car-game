@@ -25,7 +25,7 @@ pub struct PhysicsObject {
 }
 
 #[wasm_bindgen]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum PhysicsType {
     Static,     // Never update position.
     Dynamic,    // Always update position.
