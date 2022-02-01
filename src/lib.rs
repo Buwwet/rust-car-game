@@ -4,7 +4,7 @@ mod systems;
 mod resources;
 mod entities;
 
-use components::{ModelName, PhysicsObject};
+use components::{ModelName, PhysicsObject, PhysicsType};
 use nalgebra::{Vector3, vector};
 use rapier3d::prelude::{RigidBodySet, ColliderSet};
 use resources::RigidBodyContainer;
@@ -53,9 +53,10 @@ impl GameContainer {
     pub fn run_systems(&mut self) {
         systems::run_systems(&mut self.world);
     }
-    pub fn log_entities(&self) -> Array {
-        // For each entity with PhysicsObject and ModelName, return it to our Javascript.
-        let mut object_collection = Array::new();
+
+    pub fn log_entities(&self) -> GameObjectContainer {
+        // For each entity with PhysicsObject and ModelName, return it to our Javascript inside this container.
+        let mut gameobject_container = GameObjectContainer { data: vec![] };
         
         // Fetch Components
         let names = self.world.read_storage::<ModelName>();
@@ -77,42 +78,68 @@ impl GameContainer {
 
             // Form the Object
             let object: GameObject = GameObject {
-                name: name.name.clone(),
+                name: name.name,
+                physics: ps_object.object_type.clone(),
                 id: entity.id(),
-                pos: vec![pos[0], pos[1], pos[2]],
-                rot: vec![rot.0, rot.1, rot.2],
+                pos: [pos[0], pos[1], pos[2]],
+                rot: [rot.0, rot.1, rot.2],
             };
             
             // Append to the object collection.
-            object_collection.push(&JsValue::from_serde::<GameObject>(&object).unwrap_or_else(|err| {
-                log(&format!("Error while paring JsValue from GameObject: {}", err));
-                std::process::exit(1);
-            }));
+            gameobject_container.push(object);
         }
 
         // Return the collection to javascript
 
-        object_collection
+        gameobject_container
+    }
+}
+
+
+
+#[wasm_bindgen]
+pub struct GameObjectContainer {
+    data: Vec<GameObject>
+}
+
+#[wasm_bindgen]
+impl GameObjectContainer {
+    pub fn len(self) -> u32 {
+        // Get length of container for looping
+        self.data.len() as u32
+    }
+    pub fn get(self, idx: usize) -> GameObject {
+        // Get GameObject from list.
+        self.data[idx]
+    }
+    pub fn push(&mut self, object: GameObject) {
+        self.data.push(object);
     }
 }
 
 #[wasm_bindgen]
-#[derive(Serialize)]
+#[derive(Clone, Copy)]
 pub struct GameObject {
-    name: String,
+    name: [char; 5],
+    physics: PhysicsType,
     id: u32,
-    pos: Vec<f32>,
-    rot: Vec<f32>,
+    pos: [f32; 3],
+    rot: [f32; 3],
 }
 
 // Implement getter fuctions.
 #[wasm_bindgen]
 impl GameObject {
     pub fn name(&self) -> JsString {
-        self.name.clone().into()
+        // transform chars into string
+        let string: String = self.name.iter().collect();
+        string.into()
     }
     pub fn id(&self) -> u32 {
         self.id
+    }
+    pub fn physics_type(&self) -> PhysicsType {
+        self.physics
     }
     pub fn pos(&self) -> Array {
         let pos_array = Array::new_with_length(3);

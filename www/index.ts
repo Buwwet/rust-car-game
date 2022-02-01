@@ -1,4 +1,4 @@
-import {GameContainer, set_panic_hook} from "game-test";
+import {GameContainer, set_panic_hook, GameObjectContainer, PhysicsType} from "game-test";
 import * as THREE from 'three';
 import { GameObject } from '../pkg/game_test';
 
@@ -35,13 +35,16 @@ const renderLoop = () => {
     game_structure.run_systems();
 
     // Compared threejs objects with Rust GameObjects
-    let gameObjects: Array<any> = game_structure.log_entities();
+    let gameObjects: GameObjectContainer = game_structure.log_entities();
     
     // Create meshes if a gameObject without an id is found, update
     // the positions of the others.
-    for (var i = 0; i < gameObjects.length; i++) {
-        let entID = gameObjects[i].id;
-        let entName = gameObjects[i].name;
+    for (var i = 0; i < gameObjects.len(); i++) {
+        let gameObject = gameObjects.get(i);
+
+        let entID = gameObject.id();
+        let entName = gameObject.name();
+
         // Check if an object exists with entID and entName
         let object = scene.getObjectByName(entID + entName);
 
@@ -49,16 +52,20 @@ const renderLoop = () => {
             // Create that object!
             let newObject = create_object(entName);
             
+            // Create its identifier.
             newObject.name = entID + entName;
             scene.add(newObject);
 
+            // Set the position of that object.
+            update_object(newObject, gameObject);
         } else {
-            // Update that object!
-            let pos: Array<number> = gameObjects[i].pos;
-            object.position.set(pos[0], pos[1], pos[2]);
-
-            let rot: Array<number> = gameObjects[i].rot;
-            object.rotation.set(rot[0], rot[1], rot[2]);
+            
+            // Check if object is dynamic.
+            if (gameObject.physics_type() == PhysicsType.Dynamic) {
+                // Update that object!
+                update_object(object, gameObject);
+            }
+            
         }
     }
 
@@ -68,6 +75,15 @@ const renderLoop = () => {
     
 
     requestAnimationFrame(renderLoop);
+}
+
+function update_object(object: THREE.Object3D, gameObject: GameObject) {
+    // Function to update an objects position and rotation.
+    let pos: Array<number> = gameObject.pos();
+    object.position.set(pos[0], pos[1], pos[2]);
+
+    let rot: Array<number> = gameObject.rot();
+    object.rotation.set(rot[0], rot[1], rot[2]);
 }
 
 function create_object(name: string) {

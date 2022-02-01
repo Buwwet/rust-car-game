@@ -3,7 +3,7 @@ use parry3d::math::{Vector, Real};
 use rapier3d::prelude::{RigidBodyBuilder, ColliderBuilder};
 use specs::{Entities, Read, world::EntitiesRes, LazyUpdate, Builder};
 
-use crate::{components::{PlayerCar, PhysicsObject, ModelName}, resources::{ColliderContainer, RigidBodyContainer}};
+use crate::{components::{PlayerCar, PhysicsObject, ModelName, PhysicsType}, resources::{ColliderContainer, RigidBodyContainer}};
 
 
 // Create entity from Read<Lazy> and Entities
@@ -39,9 +39,10 @@ pub fn create_player<'a>(
     lazy.create_entity(&ent)
         .with(PlayerCar {})
         .with(ModelName {
-            name: "Car".to_string(),
+            name: ['C', 'a', 'r', '0', '0'],
         })
         .with(PhysicsObject {
+            object_type: PhysicsType::Dynamic,
             rigidbody: rigidbody_handle,
             colliders: vec![collider_handle],
         })
@@ -78,9 +79,10 @@ pub fn create_floor<'a>(
     // Create the specs entity.
     lazy.create_entity(&ent)
         .with(ModelName {
-            name: "Floor".to_string(),
+            name: ['f', 'l', 'o', 'o', 'r'],
         })
         .with(PhysicsObject {
+            object_type: PhysicsType::Static,
             rigidbody: rigidbody_handle,
             colliders: vec![collider_handle],
         })

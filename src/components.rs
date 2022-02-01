@@ -1,5 +1,6 @@
 use rapier3d::prelude::{ColliderHandle, RigidBodyHandle};
 use specs::{Component, VecStorage, WorldExt, World};
+use wasm_bindgen::prelude::wasm_bindgen;
 
 pub fn register_components(world: &mut World) {
     world.register::<PlayerCar>();
@@ -18,9 +19,18 @@ pub struct StaticObject {
 #[derive(Component)]
 #[storage(VecStorage)]
 pub struct PhysicsObject {
+    pub object_type: PhysicsType,
     pub rigidbody: RigidBodyHandle,
     pub colliders: Vec<ColliderHandle>,
 }
+
+#[wasm_bindgen]
+#[derive(Clone, Copy)]
+pub enum PhysicsType {
+    Static,     // Never update position.
+    Dynamic,    // Always update position.
+}
+
 
 #[derive(Component)]
 #[storage(VecStorage)]
@@ -29,5 +39,5 @@ pub struct PlayerCar {}
 #[derive(Component)]
 #[storage(VecStorage)]
 pub struct ModelName {
-    pub name: String,
+    pub name: [char; 5],
 }

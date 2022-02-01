@@ -29,23 +29,27 @@ var renderLoop = function () {
     var gameObjects = game_structure.log_entities();
     // Create meshes if a gameObject without an id is found, update
     // the positions of the others.
-    for (var i = 0; i < gameObjects.length; i++) {
-        var entID = gameObjects[i].id;
-        var entName = gameObjects[i].name;
+    for (var i = 0; i < gameObjects.len(); i++) {
+        var gameObject = gameObjects.get(i);
+        var entID = gameObject.id();
+        var entName = gameObject.name();
         // Check if an object exists with entID and entName
         var object = scene.getObjectByName(entID + entName);
         if (object === undefined) {
             // Create that object!
             var newObject = create_object(entName);
+            // Create its identifier.
             newObject.name = entID + entName;
             scene.add(newObject);
+            // Set the position of that object.
+            update_object(newObject, gameObject);
         }
         else {
-            // Update that object!
-            var pos = gameObjects[i].pos;
-            object.position.set(pos[0], pos[1], pos[2]);
-            var rot = gameObjects[i].rot;
-            object.rotation.set(rot[0], rot[1], rot[2]);
+            // Check if object is dynamic.
+            if (gameObject.physics_type() == game_test_1.PhysicsType.Dynamic) {
+                // Update that object!
+                update_object(object, gameObject);
+            }
         }
     }
     // Render the scene.
@@ -53,6 +57,13 @@ var renderLoop = function () {
     // Console log the game objects.
     requestAnimationFrame(renderLoop);
 };
+function update_object(object, gameObject) {
+    // Function to update an objects position and rotation.
+    var pos = gameObject.pos();
+    object.position.set(pos[0], pos[1], pos[2]);
+    var rot = gameObject.rot();
+    object.rotation.set(rot[0], rot[1], rot[2]);
+}
 function create_object(name) {
     // NOTE: these meshes' geometries are just the same values
     // given to the colliders. (but * 2 because those are generated like in a mirror)
