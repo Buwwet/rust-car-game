@@ -80,6 +80,16 @@ const renderLoop = () => {
     requestAnimationFrame(renderLoop);
 }
 
+function catch_gameObject(gameObjects: GameObjectContainer, idx: number): GameObject {
+    // Use the GameObjectContainer's .get() inside a catch.
+    try {
+        return gameObjects.get(idx);
+    } catch(err) {
+        throw new Error("Failed to get gameObject. " + err);
+    }
+
+}
+
 function update_object(object: THREE.Object3D, gameObject: GameObject) {
     // Function to update an objects position and rotation.
 
@@ -109,6 +119,7 @@ function create_object(name: string) {
     }
 
     // !!! If nothing matches, it returns undefined so watch out!
+    throw new Error("Failed to create an object with " + name + " as the model name.");
 }
 
 

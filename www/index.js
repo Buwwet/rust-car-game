@@ -58,6 +58,15 @@ var renderLoop = function () {
     // Console log the game objects.
     requestAnimationFrame(renderLoop);
 };
+function catch_gameObject(gameObjects, idx) {
+    // Use the GameObjectContainer's .get() inside a catch.
+    try {
+        return gameObjects.get(idx);
+    }
+    catch (err) {
+        throw new Error("Failed to get gameObject. " + err);
+    }
+}
 function update_object(object, gameObject) {
     // Function to update an objects position and rotation.
     var pos = gameObject.pos();
@@ -77,5 +86,6 @@ function create_object(name) {
         return floorObject;
     }
     // !!! If nothing matches, it returns undefined so watch out!
+    throw new Error("Failed to create an object with " + name + " as the model name.");
 }
 requestAnimationFrame(renderLoop);

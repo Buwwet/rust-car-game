@@ -113,7 +113,6 @@ impl GameObjectContainer {
     }
     pub fn get(&self, idx: usize) -> GameObject {
         // Get GameObject from list.
-        //log(&format!("{:#?}", self.data[idx]));
         self.data[idx].unwrap()
     }
     pub fn push(&mut self, object: GameObject) {
