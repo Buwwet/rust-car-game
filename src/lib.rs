@@ -51,7 +51,13 @@ impl GameContainer {
             world,
         }
     }
-    pub fn run_systems(&mut self) {
+    pub fn run_systems(&mut self, keys: &GameKeysContainer) {
+        // Update the keys resource.
+        {
+            let mut keys_resource = self.world.write_resource::<GameKeysContainer>();
+            keys_resource.keys = keys.keys;
+        }
+        // Run the systems.
         systems::run_systems(&mut self.world);
     }
 
@@ -181,9 +187,13 @@ pub struct GameKeysContainer {
 #[wasm_bindgen]
 impl GameKeysContainer {
     pub fn new() -> GameKeysContainer {
-        GameKeysContainer::default()
+        //GameKeysContainer::default()
+        GameKeysContainer {
+            keys: [false, false, false, false]
+        }
     }
     pub fn set(&mut self, idx: usize, value: bool) {
+        //log(&format!("{}", value));
         self.keys[idx] = value;
     }
     pub fn get(&self, idx: usize) -> bool {

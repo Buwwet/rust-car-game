@@ -8,15 +8,15 @@ set_panic_hook();
 // Create the 3js scene.
 const scene = new THREE.Scene();
 const camara = new THREE.OrthographicCamera(
-    -3.2 * 3, //Left
-    3.2 * 3,  //Ruight
-    2.4 * 3,  //Top
-    -2.4 * 3, //Bottom
+    -3.2 * 30, //Left
+    3.2 * 30,  //Ruight
+    2.4 * 30,  //Top
+    -2.4 * 30, //Bottom
     0.01, //Near
-    100,  //Far
+    400,  //Far
 );
 // Move camera to look at center.
-camara.position.set(12, 12, 12);
+camara.position.set(-100, 100, -100);
 camara.lookAt(0, 0, 0);
 
 // Grid
@@ -35,7 +35,7 @@ let keys_pressed: GameKeysContainer = GameKeysContainer.new();
 
 const renderLoop = () => {
     // Run the game systems.
-    game_structure.run_systems();
+    game_structure.run_systems(keys_pressed);
 
     // Compared threejs objects with Rust GameObjects
     let gameObjects: GameObjectContainer = game_structure.log_entities();
@@ -108,7 +108,7 @@ function create_object(name: string) {
     // given to the colliders. (but * 2 because those are generated like in a mirror)
     if (name == "car00") {
         let carObject = new THREE.Mesh(
-            new THREE.BoxGeometry(4, 2, 8),
+            new THREE.BoxGeometry(8, 2, 4),
             new THREE.MeshNormalMaterial()
         );
         return carObject;

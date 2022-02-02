@@ -3,11 +3,14 @@ use parry3d::math::{Vector, Real};
 use rapier3d::prelude::{PhysicsPipeline, RigidBodySet, ColliderSet, IntegrationParameters, IslandManager, BroadPhase, NarrowPhase, JointSet, CCDSolver, PhysicsHooks, EventHandler};
 use specs::World;
 
+use crate::GameKeysContainer;
+
 pub fn insert_resources(world: &mut World) {
     // Insert the physics resources to the world.
     world.insert(RigidBodyContainer::default());
     world.insert(ColliderContainer::default());
     world.insert(PhysicsResource::default());
+    world.insert(GameKeysContainer::default());
 }
 
 // Custom Structs to hold RigidBodySet & ColliderSet Resources;

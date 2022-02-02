@@ -23,10 +23,11 @@ pub fn create_player<'a>(
     /* Create our rigid body */
     let rigidbody = RigidBodyBuilder::new_dynamic()
         .translation(pos)
+        .additional_mass(120.0)
         .build();
     
     /* Create the colliders (1 for now) */
-    let collider = ColliderBuilder::cuboid(2.0, 1.0, 4.0)
+    let collider = ColliderBuilder::cuboid(4.0, 1.0, 2.0)
         .restitution(0.7)
         .build();
     
@@ -69,6 +70,7 @@ pub fn create_floor<'a>(
     
     /* Create the floor collider */
     let collider = ColliderBuilder::cuboid(100.0, 0.1, 100.0)
+        .friction(4.0)
         .build();
     
     // These are stored in the entity.

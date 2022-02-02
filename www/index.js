@@ -6,14 +6,14 @@ var THREE = require("three");
 (0, game_test_1.set_panic_hook)();
 // Create the 3js scene.
 var scene = new THREE.Scene();
-var camara = new THREE.OrthographicCamera(-3.2 * 3, //Left
-3.2 * 3, //Ruight
-2.4 * 3, //Top
--2.4 * 3, //Bottom
+var camara = new THREE.OrthographicCamera(-3.2 * 30, //Left
+3.2 * 30, //Ruight
+2.4 * 30, //Top
+-2.4 * 30, //Bottom
 0.01, //Near
-100);
+400);
 // Move camera to look at center.
-camara.position.set(12, 12, 12);
+camara.position.set(-100, 100, -100);
 camara.lookAt(0, 0, 0);
 // Grid
 scene.add(new THREE.GridHelper(10, 10));
@@ -26,7 +26,7 @@ var game_structure = game_test_1.GameContainer.create();
 var keys_pressed = game_test_1.GameKeysContainer["new"]();
 var renderLoop = function () {
     // Run the game systems.
-    game_structure.run_systems();
+    game_structure.run_systems(keys_pressed);
     // Compared threejs objects with Rust GameObjects
     var gameObjects = game_structure.log_entities();
     // Create meshes if a gameObject without an id is found, update
@@ -80,7 +80,7 @@ function create_object(name) {
     // NOTE: these meshes' geometries are just the same values
     // given to the colliders. (but * 2 because those are generated like in a mirror)
     if (name == "car00") {
-        var carObject = new THREE.Mesh(new THREE.BoxGeometry(4, 2, 8), new THREE.MeshNormalMaterial());
+        var carObject = new THREE.Mesh(new THREE.BoxGeometry(8, 2, 4), new THREE.MeshNormalMaterial());
         return carObject;
     }
     if (name == "floor") {
@@ -92,7 +92,6 @@ function create_object(name) {
 }
 // Update keys pressed
 document.onkeydown = function (e) {
-    keys_pressed.log();
     var key = e.key;
     switch (key) {
         // Depending on the key pressed, toggle it.
