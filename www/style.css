@@ -1,0 +1,29 @@
+canvas {
+    position: absolute;
+}
+
+.button_holder {
+    bottom: 10px;
+    right: 10px;
+    position: absolute;
+}
+
+div {
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+button {
+    position: relative;
+    z-index: 4;
+
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+
+    width: 120px;
+    height: 120px;
+}

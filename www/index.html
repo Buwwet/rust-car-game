@@ -3,10 +3,24 @@
   <head>
     <meta charset="utf-8">
     <title>Hello wasm-pack!</title>
+    <link rel="stylesheet" href="./style.css">
   </head>
   <body>
+
     <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
     <script src="./bootstrap.js"></script>
     <root id="root"></root>
+
+    <div id="ios_buttons" class="button_holder">
+      <div id="ios_buttons_top">
+        <button id="ios_forward" unselectable="on">Forward</button>
+      </div>
+      <div id="ios_buttons_bottom">
+        <button id="ios_left">Left</button>
+        <button id="ios_brakes">Back</button>
+        <button id="ios_right">Right</button>
+      </div>
+    </div>
+
   </body>
 </html>

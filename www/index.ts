@@ -24,7 +24,7 @@ scene.add(new THREE.GridHelper(10, 10));
 
 var renderer = new THREE.WebGLRenderer();
 document.getElementById('root').appendChild(renderer.domElement);
-renderer.setSize(640, 480);
+renderer.setSize(window.outerWidth, window.outerHeight);
 
 
 // Create a game structure
@@ -163,6 +163,37 @@ document.onkeyup = (e) => {
             keys_pressed.set(GameKeys.Right, false);
             break;
     }
+}
+
+
+// IOS Controls
+const ios_forward = document.getElementById("ios_forward");
+ios_forward.ontouchstart = () => {
+    keys_pressed.set(GameKeys.Acceleration, true);
+}
+ios_forward.ontouchend = () => {
+    keys_pressed.set(GameKeys.Acceleration, false);
+}
+const ios_left = document.getElementById("ios_left");
+ios_left.ontouchstart = () => {
+    keys_pressed.set(GameKeys.Left, true);
+}
+ios_left.ontouchend = () => {
+    keys_pressed.set(GameKeys.Left, false);
+}
+const ios_right = document.getElementById("ios_right");
+ios_right.ontouchstart = () => {
+    keys_pressed.set(GameKeys.Right, true);
+}
+ios_right.ontouchend = () => {
+    keys_pressed.set(GameKeys.Right, false);
+}
+const ios_brakes = document.getElementById("ios_brakes");
+ios_brakes.ontouchstart = () => {
+    keys_pressed.set(GameKeys.Brakes, true);
+}
+ios_brakes.ontouchend = () => {
+    keys_pressed.set(GameKeys.Brakes, false);
 }
 
 requestAnimationFrame(renderLoop);
