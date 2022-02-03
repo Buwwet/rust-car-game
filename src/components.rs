@@ -34,7 +34,9 @@ pub enum PhysicsType {
 
 #[derive(Component)]
 #[storage(VecStorage)]
-pub struct PlayerCar {}
+pub struct PlayerCar {
+    pub touching_ground: bool,
+}
 
 #[derive(Component)]
 #[storage(VecStorage)]

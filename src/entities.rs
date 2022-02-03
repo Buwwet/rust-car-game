@@ -28,7 +28,7 @@ pub fn create_player<'a>(
     
     /* Create the colliders (1 for now) */
     let collider = ColliderBuilder::cuboid(4.0, 1.0, 2.0)
-        .restitution(0.7)
+        .restitution(0.2)
         .build();
     
     // These are stored in the entity.
@@ -38,7 +38,7 @@ pub fn create_player<'a>(
 
     // Create the specs entity.
     lazy.create_entity(&ent)
-        .with(PlayerCar {})
+        .with(PlayerCar { touching_ground: false })
         .with(ModelName {
             name: ['c', 'a', 'r', '0', '0'],
         })
@@ -70,7 +70,8 @@ pub fn create_floor<'a>(
     
     /* Create the floor collider */
     let collider = ColliderBuilder::cuboid(100.0, 0.1, 100.0)
-        .friction(4.0)
+        .friction(1.0)
+        
         .build();
     
     // These are stored in the entity.

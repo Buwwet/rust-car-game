@@ -14,7 +14,9 @@ impl <'a>System<'a> for MovementSystem {
         ReadStorage<'a, PlayerCar>,
         WriteStorage<'a, PhysicsObject>,
 
+
         Write<'a, RigidBodyContainer>,
+        Write<'a, ColliderContainer>,
         Read<'a, GameKeysContainer>,
     );
 
@@ -24,11 +26,12 @@ impl <'a>System<'a> for MovementSystem {
             player,
             physics_objects,
             mut rigidbody_set,
+            mut collider_set,
             keys,
         ) = data;
 
         // Get the physics_object and of all players
-        for (physics_object, _player, _ent) in (&physics_objects, &player, &entities).join() {
+        for (physics_object, player, _ent) in (&physics_objects, &player, &entities).join() {
             let rigidbody_handle = physics_object.rigidbody;
             
             
@@ -36,8 +39,11 @@ impl <'a>System<'a> for MovementSystem {
             if rigidbody.is_none() {
                 log("None when fetching rigidbody from rigidbody_set.")
             }
+
             let rigidbody = rigidbody.unwrap();
-            
+            // Check if the colliders are intersecting with others.
+ 
+            if player.touching_ground {
             // Variables to change
             let mut forward_force = vector![0.0, 0.0, 0.0];
             let mut torque = vector![0.0, 0.0, 0.0];
@@ -67,11 +73,13 @@ impl <'a>System<'a> for MovementSystem {
             // Car is looking at.
             forward_force = rigidbody.rotation().transform_vector(&forward_force);
 
+
+            // TODO: Remove percentage of velocity and then add the forward force.
+
             // Apply velocity.
             rigidbody.apply_impulse(forward_force, true);
             rigidbody.apply_torque(torque, true);
-
-            // Simulate
+            }
 
 
         }
