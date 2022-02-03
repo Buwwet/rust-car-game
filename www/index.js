@@ -127,33 +127,41 @@ document.onkeyup = function (e) {
             break;
     }
 };
-// IOS Controls
-var ios_forward = document.getElementById("ios_forward");
-ios_forward.ontouchstart = function () {
-    keys_pressed.set(game_test_1.GameKeys.Acceleration, true);
-};
-ios_forward.ontouchend = function () {
-    keys_pressed.set(game_test_1.GameKeys.Acceleration, false);
-};
-var ios_left = document.getElementById("ios_left");
-ios_left.ontouchstart = function () {
-    keys_pressed.set(game_test_1.GameKeys.Left, true);
-};
-ios_left.ontouchend = function () {
-    keys_pressed.set(game_test_1.GameKeys.Left, false);
-};
-var ios_right = document.getElementById("ios_right");
-ios_right.ontouchstart = function () {
-    keys_pressed.set(game_test_1.GameKeys.Right, true);
-};
-ios_right.ontouchend = function () {
-    keys_pressed.set(game_test_1.GameKeys.Right, false);
-};
-var ios_brakes = document.getElementById("ios_brakes");
-ios_brakes.ontouchstart = function () {
-    keys_pressed.set(game_test_1.GameKeys.Brakes, true);
-};
-ios_brakes.ontouchend = function () {
-    keys_pressed.set(game_test_1.GameKeys.Brakes, false);
-};
+/* IOS Controls */
+// Listen to see if the user has touched the screen
+window.addEventListener('touchstart', function onFirstTouch() {
+    // Make the buttons visible.
+    var container = document.getElementById("ios_buttons");
+    container.style.display = "block";
+    // Create the functionality for all of the buttons.
+    var ios_forward = document.getElementById("ios_forward");
+    ios_forward.ontouchstart = function () {
+        keys_pressed.set(game_test_1.GameKeys.Acceleration, true);
+    };
+    ios_forward.ontouchend = function () {
+        keys_pressed.set(game_test_1.GameKeys.Acceleration, false);
+    };
+    var ios_left = document.getElementById("ios_left");
+    ios_left.ontouchstart = function () {
+        keys_pressed.set(game_test_1.GameKeys.Left, true);
+    };
+    ios_left.ontouchend = function () {
+        keys_pressed.set(game_test_1.GameKeys.Left, false);
+    };
+    var ios_right = document.getElementById("ios_right");
+    ios_right.ontouchstart = function () {
+        keys_pressed.set(game_test_1.GameKeys.Right, true);
+    };
+    ios_right.ontouchend = function () {
+        keys_pressed.set(game_test_1.GameKeys.Right, false);
+    };
+    var ios_brakes = document.getElementById("ios_brakes");
+    ios_brakes.ontouchstart = function () {
+        keys_pressed.set(game_test_1.GameKeys.Brakes, true);
+    };
+    ios_brakes.ontouchend = function () {
+        keys_pressed.set(game_test_1.GameKeys.Brakes, false);
+    };
+    window.removeEventListener('touchstart', onFirstTouch, false);
+});
 requestAnimationFrame(renderLoop);

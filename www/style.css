@@ -6,6 +6,8 @@ canvas {
     bottom: 10px;
     right: 10px;
     position: absolute;
+
+    display: none;
 }
 
 div {
