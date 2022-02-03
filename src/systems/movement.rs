@@ -48,33 +48,41 @@ impl <'a>System<'a> for MovementSystem {
             let mut forward_force = vector![0.0, 0.0, 0.0];
             let mut torque = vector![0.0, 0.0, 0.0];
             
+            /* Throttle */
             if keys.get(GameKeys::Acceleration as usize) {
                 // Slam on the pedal.
-                forward_force = vector![160.0, 0.0, 0.0];
+                forward_force = vector![320.0, 0.0, 0.0];
             }
             if keys.get(GameKeys::Brakes as usize) {
                 // Slam on the reverse.
-                forward_force = vector![-80.0, 0.0, 0.0];
+                forward_force = vector![-120.0, 0.0, 0.0];
             }
 
             // TODO: Make it so torque's magnitude changes with current speed.
+            /* Steering */
             if keys.get(GameKeys::Left as usize) {
                 // Go left.
                 torque = vector![0.0, 630.0, 0.0];
             }
             if keys.get(GameKeys::Right as usize) {
-                // Go left.
+                // Go right.
                 torque = vector![0.0, -630.0, 0.0];
             }
-
-            /* Do these only when touching the ground */
 
             // Change the rotation to be relative to where the
             // Car is looking at.
             forward_force = rigidbody.rotation().transform_vector(&forward_force);
 
 
-            // TODO: Remove percentage of velocity and then add the forward force.
+            // Traction: remove a percentage of velocity while on ground.
+            rigidbody.set_linvel(
+                *rigidbody.linvel() * 0.97,
+            true);
+
+            // TODO: apply traction to angvel.
+
+
+
 
             // Apply velocity.
             rigidbody.apply_impulse(forward_force, true);
