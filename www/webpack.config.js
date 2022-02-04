@@ -12,7 +12,8 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin({
       patterns: [
-        { from: path.resolve(__dirname, "index.html") }
+        { from: path.resolve(__dirname, "index.html") },
+        { from: path.resolve(__dirname, "style.css") }
       ]
     })
   ],
