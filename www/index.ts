@@ -24,7 +24,7 @@ scene.add(new THREE.GridHelper(10, 10));
 
 var renderer = new THREE.WebGLRenderer();
 document.getElementById('root').appendChild(renderer.domElement);
-renderer.setSize(window.outerWidth, window.outerHeight);
+renderer.setSize(window.innerWidth, window.innerHeight);
 
 
 // Create a game structure
