@@ -1,6 +1,9 @@
 import {GameContainer, set_panic_hook, GameObjectContainer, PhysicsType, GameKeys, GameKeysContainer} from "game-test";
 import * as THREE from 'three';
+import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry'
+
 import { GameObject } from '../pkg/game_test';
+
 
 // Better logging on Errors.
 set_panic_hook();
@@ -21,6 +24,9 @@ camara.lookAt(0, 0, 0);
 
 // Grid
 scene.add(new THREE.GridHelper(10, 10));
+const light = new THREE.AmbientLight(0xFFFFFF, 1);
+scene.add(light);
+
 
 var renderer = new THREE.WebGLRenderer();
 document.getElementById('root').appendChild(renderer.domElement);
@@ -118,7 +124,32 @@ function create_object(name: string) {
             new THREE.BoxGeometry(200, 0.2, 200),
             new THREE.MeshBasicMaterial()
         );
+
+        //floorObject.material.wireframe = true;
+
         return floorObject;
+    }
+    if (name == "ramp0") {
+        let points = [
+        /* Floor */
+        new THREE.Vector3(5.0, 0.0, 6.0),
+        new THREE.Vector3(-5.0, 0.0, 6.0),
+        new THREE.Vector3(5.0, 0.0, -6.0),
+        new THREE.Vector3(-5.0, 0.0, -6.0),
+        /* Top part */
+        new THREE.Vector3(5.0, 5.0, 6.0),
+        new THREE.Vector3(-5.0, 5.0, 6.0),
+        ];
+
+
+        let rampObject = new THREE.Mesh(
+            new ConvexGeometry(points),
+            new THREE.MeshStandardMaterial({
+                color: 0xFF00FF,
+            }),
+        );
+        
+        return rampObject;
     }
 
     // !!! If nothing matches, it returns undefined so watch out!

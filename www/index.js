@@ -2,6 +2,7 @@
 exports.__esModule = true;
 var game_test_1 = require("game-test");
 var THREE = require("three");
+var ConvexGeometry_1 = require("three/examples/jsm/geometries/ConvexGeometry");
 // Better logging on Errors.
 (0, game_test_1.set_panic_hook)();
 // Create the 3js scene.
@@ -17,6 +18,8 @@ camara.position.set(-100, 100, -100);
 camara.lookAt(0, 0, 0);
 // Grid
 scene.add(new THREE.GridHelper(10, 10));
+var light = new THREE.AmbientLight(0xFFFFFF, 1);
+scene.add(light);
 var renderer = new THREE.WebGLRenderer();
 document.getElementById('root').appendChild(renderer.domElement);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -85,7 +88,24 @@ function create_object(name) {
     }
     if (name == "floor") {
         var floorObject = new THREE.Mesh(new THREE.BoxGeometry(200, 0.2, 200), new THREE.MeshBasicMaterial());
+        //floorObject.material.wireframe = true;
         return floorObject;
+    }
+    if (name == "ramp0") {
+        var points = [
+            /* Floor */
+            new THREE.Vector3(5.0, 0.0, 6.0),
+            new THREE.Vector3(-5.0, 0.0, 6.0),
+            new THREE.Vector3(5.0, 0.0, -6.0),
+            new THREE.Vector3(-5.0, 0.0, -6.0),
+            /* Top part */
+            new THREE.Vector3(5.0, 5.0, 6.0),
+            new THREE.Vector3(-5.0, 5.0, 6.0),
+        ];
+        var rampObject = new THREE.Mesh(new ConvexGeometry_1.ConvexGeometry(points), new THREE.MeshStandardMaterial({
+            color: 0xFF00FF
+        }));
+        return rampObject;
     }
     // !!! If nothing matches, it returns undefined so watch out!
     throw new Error("Failed to create an object with " + name + " as the model name.");

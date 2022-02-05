@@ -1,4 +1,5 @@
 
+use nalgebra::point;
 use parry3d::math::{Vector, Real};
 use rapier3d::prelude::{RigidBodyBuilder, ColliderBuilder};
 use specs::{Entities, Read, world::EntitiesRes, LazyUpdate, Builder};
@@ -83,6 +84,58 @@ pub fn create_floor<'a>(
     lazy.create_entity(&ent)
         .with(ModelName {
             name: ['f', 'l', 'o', 'o', 'r'],
+        })
+        .with(PhysicsObject {
+            object_type: PhysicsType::Static,
+            rigidbody: rigidbody_handle,
+            colliders: vec![collider_handle],
+        })
+        .build();
+}
+
+pub fn create_ramp<'a>(
+    // Get the Builders of the entity:
+    ent: &Read<'a, EntitiesRes>,
+    lazy: &Read<'a, LazyUpdate>,
+
+    // Insert to RigidBodyContainer and ColliderContainer
+    pos: Vector<Real>,
+    rigidbodies: &mut RigidBodyContainer,
+    colliders: &mut ColliderContainer,
+
+) {
+    // Create the rigidbody and colliders.
+    /* Create our rigid body */
+    let rigidbody = RigidBodyBuilder::new_static()
+        .translation(pos)
+        .build();
+
+    
+    /* Create the ramp collider */
+    let points = [
+        /* Floor */
+        point!(5.0, 0.0, 6.0),
+        point!(-5.0, 0.0, 6.0),
+        point!(5.0, 0.0, -6.0),
+        point!(-5.0, 0.0, -6.0),
+        /* Top part */
+        point!(5.0, 5.0, 6.0),
+        point!(-5.0, 5.0, 6.0),
+    ];
+
+    let collider = ColliderBuilder::convex_hull(&points)
+        .unwrap()
+        .build();
+    
+    // These are stored in the entity.
+    let rigidbody_handle = rigidbodies.0.insert(rigidbody);
+        // Remember to insert the collider with the parent.
+        let collider_handle = colliders.0.insert_with_parent(collider, rigidbody_handle, &mut rigidbodies.0);
+
+    // Create the specs entity.
+    lazy.create_entity(&ent)
+        .with(ModelName {
+            name: ['r', 'a', 'm', 'p', '0'],
         })
         .with(PhysicsObject {
             object_type: PhysicsType::Static,
