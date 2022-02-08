@@ -1,6 +1,6 @@
 
 use nalgebra::point;
-use parry3d::math::{Vector, Real};
+use parry3d::math::{Vector, Real, Rotation, AngVector};
 use rapier3d::prelude::{RigidBodyBuilder, ColliderBuilder};
 use specs::{Entities, Read, world::EntitiesRes, LazyUpdate, Builder};
 
@@ -25,6 +25,8 @@ pub fn create_player<'a>(
     let rigidbody = RigidBodyBuilder::new_dynamic()
         .translation(pos)
         .additional_mass(120.0)
+        .linear_damping(1.0)
+        .angular_damping(0.2)
         .build();
     
     /* Create the colliders (1 for now) */
@@ -100,6 +102,7 @@ pub fn create_ramp<'a>(
 
     // Insert to RigidBodyContainer and ColliderContainer
     pos: Vector<Real>,
+    rot: AngVector<Real>,
     rigidbodies: &mut RigidBodyContainer,
     colliders: &mut ColliderContainer,
 
@@ -108,6 +111,7 @@ pub fn create_ramp<'a>(
     /* Create our rigid body */
     let rigidbody = RigidBodyBuilder::new_static()
         .translation(pos)
+        .rotation(rot)
         .build();
 
     

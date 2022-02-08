@@ -24,7 +24,7 @@ camara.lookAt(0, 0, 0);
 
 // Grid
 scene.add(new THREE.GridHelper(10, 10));
-const light = new THREE.AmbientLight(0xFFFFFF, 1);
+const light = new THREE.HemisphereLight(0x8CC8D2, 0x5A6A70, 1)
 scene.add(light);
 
 
@@ -38,6 +38,8 @@ let game_structure: GameContainer = GameContainer.create();
 // Store keys
 let keys_pressed: GameKeysContainer = GameKeysContainer.new();
 
+// Debug value for logging stuff on a key press.
+let debug_value: any;
 
 const renderLoop = () => {
     // Run the game systems.
@@ -76,8 +78,10 @@ const renderLoop = () => {
             if (gameObject.physics_type() == PhysicsType.Dynamic) {
                 // Update that object!
                 update_object(object, gameObject);
+                object.rotateX(0.1);
+
+                debug_value = object.rotation;
             }
-            
         }
     }
 
@@ -117,7 +121,12 @@ function create_object(name: string) {
             new THREE.BoxGeometry(8, 2, 4),
             new THREE.MeshNormalMaterial()
         );
+
+        //carObject.rotation.order = "XYZ";
+
         return carObject;
+
+        
     }
     if (name == "floor") {
         let floorObject = new THREE.Mesh(
@@ -192,6 +201,10 @@ document.onkeyup = (e) => {
             break;
         case "d":
             keys_pressed.set(GameKeys.Right, false);
+            break;
+        
+        case "t":
+            console.log(debug_value);
             break;
     }
 }

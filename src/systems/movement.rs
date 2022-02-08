@@ -73,20 +73,13 @@ impl <'a>System<'a> for MovementSystem {
             // Car is looking at.
             forward_force = rigidbody.rotation().transform_vector(&forward_force);
 
-
-            // Traction: remove a percentage of velocity while on ground.
-            rigidbody.set_linvel(
-                *rigidbody.linvel() * 0.97,
-            true);
-
             // TODO: apply traction to angvel.
 
             // Apply velocity.
-            rigidbody.apply_impulse(forward_force, true);
-            rigidbody.apply_torque(torque, true);
+            rigidbody.apply_impulse(forward_force, false);
+            rigidbody.apply_torque(torque, false);
+
             }
-
-
         }
     }
 }

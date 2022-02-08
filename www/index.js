@@ -18,7 +18,7 @@ camara.position.set(-100, 100, -100);
 camara.lookAt(0, 0, 0);
 // Grid
 scene.add(new THREE.GridHelper(10, 10));
-var light = new THREE.AmbientLight(0xFFFFFF, 1);
+var light = new THREE.HemisphereLight(0x8CC8D2, 0x5A6A70, 1);
 scene.add(light);
 var renderer = new THREE.WebGLRenderer();
 document.getElementById('root').appendChild(renderer.domElement);
@@ -27,6 +27,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 var game_structure = game_test_1.GameContainer.create();
 // Store keys
 var keys_pressed = game_test_1.GameKeysContainer["new"]();
+// Debug value for logging stuff on a key press.
+var debug_value;
 var renderLoop = function () {
     // Run the game systems.
     game_structure.run_systems(keys_pressed);
@@ -55,6 +57,8 @@ var renderLoop = function () {
             if (gameObject.physics_type() == game_test_1.PhysicsType.Dynamic) {
                 // Update that object!
                 update_object(object, gameObject);
+                object.rotateX(0.1);
+                debug_value = object.rotation;
             }
         }
     }
@@ -84,6 +88,7 @@ function create_object(name) {
     // given to the colliders. (but * 2 because those are generated like in a mirror)
     if (name == "car00") {
         var carObject = new THREE.Mesh(new THREE.BoxGeometry(8, 2, 4), new THREE.MeshNormalMaterial());
+        //carObject.rotation.order = "XYZ";
         return carObject;
     }
     if (name == "floor") {
@@ -144,6 +149,9 @@ document.onkeyup = function (e) {
             break;
         case "d":
             keys_pressed.set(game_test_1.GameKeys.Right, false);
+            break;
+        case "t":
+            console.log(debug_value);
             break;
     }
 };
