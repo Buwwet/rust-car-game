@@ -64,7 +64,11 @@ impl <'a>System<'a> for InitSystem {
             );
 
 
-            let ramp_rot = vector![0.0, 0.0, 0.0];
+            let ramp_rot = vector![
+                0.0,
+                get_random(0.0..6.28, false),
+                0.0
+            ];
             create_ramp(
                 &entities, 
                 &lazy, 

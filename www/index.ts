@@ -8,13 +8,16 @@ import { GameObject } from '../pkg/game_test';
 // Better logging on Errors.
 set_panic_hook();
 
+const CAMERA_DISTANCE: number = 100;
+const CAMERA_WIDTH: number = 20;
+
 // Create the 3js scene.
 const scene = new THREE.Scene();
 const camara = new THREE.OrthographicCamera(
-    -3.2 * 30, //Left
-    3.2 * 30,  //Ruight
-    2.4 * 30,  //Top
-    -2.4 * 30, //Bottom
+    -3.2 * CAMERA_WIDTH, //Left
+    3.2 * CAMERA_WIDTH,  //Ruight
+    2.4 * CAMERA_WIDTH,  //Top
+    -2.4 * CAMERA_WIDTH, //Bottom
     0.01, //Near
     400,  //Far
 );
@@ -81,6 +84,17 @@ const renderLoop = () => {
                 object.rotateX(0.1);
 
                 debug_value = object.rotation;
+
+                // Check if this gameObject is our Player
+                if ( gameObject.name() == "car00" ) {
+                    // Update the camara's position to ours
+                    // but with it's offset.
+                    camara.position.setX(object.position.x + -CAMERA_DISTANCE);
+                    camara.position.setY(object.position.y +  CAMERA_DISTANCE);
+                    camara.position.setZ(object.position.z + -CAMERA_DISTANCE);
+                    
+                    camara.lookAt(object.position);
+                }
             }
         }
     }

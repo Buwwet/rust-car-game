@@ -5,12 +5,14 @@ var THREE = require("three");
 var ConvexGeometry_1 = require("three/examples/jsm/geometries/ConvexGeometry");
 // Better logging on Errors.
 (0, game_test_1.set_panic_hook)();
+var CAMERA_DISTANCE = 100;
+var CAMERA_WIDTH = 20;
 // Create the 3js scene.
 var scene = new THREE.Scene();
-var camara = new THREE.OrthographicCamera(-3.2 * 30, //Left
-3.2 * 30, //Ruight
-2.4 * 30, //Top
--2.4 * 30, //Bottom
+var camara = new THREE.OrthographicCamera(-3.2 * CAMERA_WIDTH, //Left
+3.2 * CAMERA_WIDTH, //Ruight
+2.4 * CAMERA_WIDTH, //Top
+-2.4 * CAMERA_WIDTH, //Bottom
 0.01, //Near
 400);
 // Move camera to look at center.
@@ -59,6 +61,15 @@ var renderLoop = function () {
                 update_object(object, gameObject);
                 object.rotateX(0.1);
                 debug_value = object.rotation;
+                // Check if this gameObject is our Player
+                if (gameObject.name() == "car00") {
+                    // Update the camara's position to ours
+                    // but with it's offset.
+                    camara.position.setX(object.position.x + -CAMERA_DISTANCE);
+                    camara.position.setY(object.position.y + CAMERA_DISTANCE);
+                    camara.position.setZ(object.position.z + -CAMERA_DISTANCE);
+                    camara.lookAt(object.position);
+                }
             }
         }
     }
