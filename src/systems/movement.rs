@@ -76,8 +76,8 @@ impl <'a>System<'a> for MovementSystem {
             // TODO: apply traction to angvel.
 
             // Apply velocity.
-            rigidbody.apply_impulse(forward_force, false);
-            rigidbody.apply_torque(torque, false);
+            rigidbody.apply_impulse(forward_force, true);
+            rigidbody.apply_torque(torque, true);
 
             }
         }

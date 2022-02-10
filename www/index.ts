@@ -81,9 +81,6 @@ const renderLoop = () => {
             if (gameObject.physics_type() == PhysicsType.Dynamic) {
                 // Update that object!
                 update_object(object, gameObject);
-                object.rotateX(0.1);
-
-                debug_value = object.rotation;
 
                 // Check if this gameObject is our Player
                 if ( gameObject.name() == "car00" ) {
@@ -125,6 +122,7 @@ function update_object(object: THREE.Object3D, gameObject: GameObject) {
 
     let rot: Array<number> = gameObject.rot();
     object.rotation.set(rot[0], rot[1], rot[2]);
+
 }
 
 function create_object(name: string) {

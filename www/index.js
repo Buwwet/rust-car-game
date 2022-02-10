@@ -59,8 +59,6 @@ var renderLoop = function () {
             if (gameObject.physics_type() == game_test_1.PhysicsType.Dynamic) {
                 // Update that object!
                 update_object(object, gameObject);
-                object.rotateX(0.1);
-                debug_value = object.rotation;
                 // Check if this gameObject is our Player
                 if (gameObject.name() == "car00") {
                     // Update the camara's position to ours
