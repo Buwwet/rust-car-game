@@ -173,6 +173,16 @@ function create_object(name: string) {
         return rampObject;
     }
 
+    if (name == "map00") {
+
+        // TEMPORARY
+        let floorObject = new THREE.Mesh(
+            new THREE.BoxGeometry(200, 0.2, 200),
+            new THREE.MeshBasicMaterial()
+        );
+        return floorObject;
+    }
+
     // !!! If nothing matches, it returns undefined so watch out!
     throw new Error("Failed to create an object with " + name + " as the model name.");
 }

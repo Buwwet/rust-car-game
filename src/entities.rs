@@ -1,5 +1,5 @@
 
-use nalgebra::point;
+use nalgebra::{point, Matrix, DMatrix, dmatrix, vector};
 use parry3d::math::{Vector, Real, Rotation, AngVector};
 use rapier3d::prelude::{RigidBodyBuilder, ColliderBuilder};
 use specs::{Entities, Read, world::EntitiesRes, LazyUpdate, Builder};
@@ -140,6 +140,47 @@ pub fn create_ramp<'a>(
     lazy.create_entity(&ent)
         .with(ModelName {
             name: ['r', 'a', 'm', 'p', '0'],
+        })
+        .with(PhysicsObject {
+            object_type: PhysicsType::Static,
+            rigidbody: rigidbody_handle,
+            colliders: vec![collider_handle],
+        })
+        .build();
+}
+
+pub fn create_ground_mesh<'a> (
+        // Get the Builders of the entity:
+        ent: &Read<'a, EntitiesRes>,
+        lazy: &Read<'a, LazyUpdate>,
+    
+        // Insert to RigidBodyContainer and ColliderContainer
+        rigidbodies: &mut RigidBodyContainer,
+        colliders: &mut ColliderContainer,
+) {
+    // TODO create a flat heightmap and test it
+
+    let rigidbody = RigidBodyBuilder::new_static().build();
+
+    // The heights require a custom dmatrix
+    let heights = dmatrix![
+        1.0, 0.0, 0.1;
+        0.0, 0.0, 0.0;
+        0.2, 0.0, 0.5
+    ];
+
+    // Use the heights to create the heightmap collider
+    let collider = ColliderBuilder::heightfield(heights, vector![1000.0, 100.0, 1000.0]).build();
+
+    // Create the handles for the entity.
+    let rigidbody_handle = rigidbodies.0.insert(rigidbody);
+        // Remember to insert the collider with the parent.
+    let collider_handle = colliders.0.insert_with_parent(collider, rigidbody_handle, &mut rigidbodies.0);
+
+    // Create the specs entity.
+    lazy.create_entity(&ent)
+        .with(ModelName {
+            name: ['m', 'a', 'p', '0', '0'],
         })
         .with(PhysicsObject {
             object_type: PhysicsType::Static,
