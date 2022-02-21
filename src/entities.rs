@@ -158,15 +158,15 @@ pub fn create_ground_mesh<'a> (
         rigidbodies: &mut RigidBodyContainer,
         colliders: &mut ColliderContainer,
 ) {
-    // TODO create a flat heightmap and test it
-
     let rigidbody = RigidBodyBuilder::new_static().build();
 
     // The heights require a custom dmatrix
     let heights = dmatrix![
-        1.0, 0.0, 0.1;
-        0.0, 0.0, 0.0;
-        0.2, 0.0, 0.5
+        0.0, 0.0, 0.0, 0.0, 0.0;
+        0.0, 0.0, 0.0, 0.0, 0.0;
+        0.0, 0.0, 0.0, 0.0, 0.0;
+        1.0, 1.0, 1.0, 1.0, 1.0;
+        1.0, 1.0, 1.0, 1.0, 1.0;
     ];
 
     // Use the heights to create the heightmap collider

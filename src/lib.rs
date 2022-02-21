@@ -5,9 +5,9 @@ mod resources;
 mod entities;
 
 use components::{ModelName, PhysicsObject, PhysicsType};
-use nalgebra::{Vector3, vector};
-use rapier3d::prelude::{RigidBodySet, ColliderSet};
-use resources::RigidBodyContainer;
+use nalgebra::{Vector3, vector, DMatrix};
+use rapier3d::prelude::{RigidBodySet, ColliderSet, RigidBodyBuilder, ColliderBuilder};
+use resources::{RigidBodyContainer, ColliderContainer};
 use serde::{Serialize};
 use specs::{World, Builder, WorldExt, System, RunNow, Join};
 
@@ -100,8 +100,50 @@ impl GameContainer {
 
         gameobject_container
     }
-}
 
+    pub fn create_map(&mut self, heightmap: Array) {
+
+        // Create the rigidbody for our map.
+        let rigidbody = RigidBodyBuilder::new_static().build();
+
+        // Get the rigidbody and colliders set to add this object later to the simulation.
+        let mut rigidbody_set = self.world.write_resource::<RigidBodyContainer>();
+        let mut collider_set = self.world.write_resource::<ColliderContainer>();
+
+        // Create a Dynamic Matrix using the length of the hightmap.
+        let width = heightmap.length() as usize;
+        let mut dynamic_heightmap = DMatrix::from_element(width, width, 0.0);
+
+        // Iter though the Array to fill the height map.
+        for (y, row) in heightmap.iter().enumerate() {
+            let row: Array = row.into();
+            for (x, value) in row.iter().enumerate() {
+                // Update the dynamic hightmap
+                dynamic_heightmap[(x, y)] = value.as_f64().unwrap() as f32;
+            }
+        }
+
+        // Use the heights to create the heightmap collider
+        let collider = ColliderBuilder::heightfield(dynamic_heightmap, vector![1000.0, 100.0, 1000.0]).build();
+
+        // Create the handles for the entity.
+        let rigidbody_handle = rigidbody_set.0.insert(rigidbody);
+        // Remember to insert the collider with the parent.
+        let collider_handle = collider_set.0.insert_with_parent(collider, rigidbody_handle, &mut rigidbody_set.0);
+
+        // Create an entity that holds the handles.
+        self.world.create_entity_unchecked()
+            .with(ModelName {
+                name: ['m', 'a', 'p', '0', '0'],
+            })
+            .with(PhysicsObject {
+                object_type: PhysicsType::Static,
+                rigidbody: rigidbody_handle,
+                colliders: vec![collider_handle],
+            })
+            .build();
+    }
+}
 
 
 #[wasm_bindgen]

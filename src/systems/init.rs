@@ -29,7 +29,7 @@ impl <'a>System<'a> for InitSystem {
         */
 
         // Heightmap
-        create_ground_mesh(&entities, &lazy, &mut rigidbodies, &mut colliders);
+        //create_ground_mesh(&entities, &lazy, &mut rigidbodies, &mut colliders);
 
         // Create our player.
         let player_pos = vector!(0.0, 5.0, 0.0);

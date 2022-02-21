@@ -25,8 +25,17 @@ scene.add(light);
 var renderer = new THREE.WebGLRenderer();
 document.getElementById('root').appendChild(renderer.domElement);
 renderer.setSize(window.innerWidth, window.innerHeight);
-// Create a game structure
+// Create the game structure
 var game_structure = game_test_1.GameContainer.create();
+var map_heightmap = [
+    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 0.0],
+];
+// Create the map with the heightmap
+game_structure.create_map(map_heightmap);
 // Store keys
 var keys_pressed = game_test_1.GameKeysContainer["new"]();
 // Debug value for logging stuff on a key press.

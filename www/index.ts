@@ -36,8 +36,21 @@ document.getElementById('root').appendChild(renderer.domElement);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-// Create a game structure
+// Create the game structure
 let game_structure: GameContainer = GameContainer.create();
+
+let map_heightmap = [
+    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 0.0],
+];
+
+// Create the map with the heightmap
+game_structure.create_map(map_heightmap);
+    
+
 // Store keys
 let keys_pressed: GameKeysContainer = GameKeysContainer.new();
 
