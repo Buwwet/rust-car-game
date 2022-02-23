@@ -36,7 +36,6 @@ var renderer = new THREE.WebGLRenderer();
 document.getElementById('root').appendChild(renderer.domElement);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-
 // Create the game structure
 let game_structure: GameContainer = GameContainer.create();
 
