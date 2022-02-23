@@ -5,8 +5,8 @@ var THREE = require("three");
 var ConvexGeometry_1 = require("three/examples/jsm/geometries/ConvexGeometry");
 // Better logging on Errors.
 (0, game_test_1.set_panic_hook)();
-var CAMERA_DISTANCE = 100;
-var CAMERA_WIDTH = 20;
+var CAMERA_DISTANCE = 500;
+var CAMERA_WIDTH = 40;
 // Create the 3js scene.
 var scene = new THREE.Scene();
 var camara = new THREE.OrthographicCamera(-3.2 * CAMERA_WIDTH, //Left
@@ -14,7 +14,7 @@ var camara = new THREE.OrthographicCamera(-3.2 * CAMERA_WIDTH, //Left
 2.4 * CAMERA_WIDTH, //Top
 -2.4 * CAMERA_WIDTH, //Bottom
 0.01, //Near
-400);
+5000);
 // Move camera to look at center.
 camara.position.set(-100, 100, -100);
 camara.lookAt(0, 0, 0);
@@ -30,12 +30,12 @@ var game_structure = game_test_1.GameContainer.create();
 var map_heightmap = [
     [0.0, 0.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 5.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
 ];
 // Create the map with the heightmap
-game_structure.create_map(map_heightmap);
+load_map(map_heightmap);
 // Store keys
 var keys_pressed = game_test_1.GameKeysContainer["new"]();
 // Debug value for logging stuff on a key press.
@@ -53,7 +53,7 @@ var renderLoop = function () {
         var entName = gameObject.name();
         // Check if an object exists with entID and entName
         var object = scene.getObjectByName(entID + entName);
-        if (object === undefined) {
+        if (object === undefined && entName != "map00") {
             // Create that object!
             var newObject = create_object(entName);
             // Create its identifier.
@@ -61,7 +61,7 @@ var renderLoop = function () {
             // Set the position of that object.
             update_object(newObject, gameObject);
             scene.add(newObject);
-            console.log(entName + " built!");
+            console.log(entID + entName + " built!");
         }
         else {
             // Check if object is dynamic.
@@ -100,6 +100,72 @@ function update_object(object, gameObject) {
     object.position.set(pos[0], pos[1], pos[2]);
     var rot = gameObject.rot();
     object.rotation.set(rot[0], rot[1], rot[2]);
+}
+function load_map(heightmap) {
+    // Delete previous map and add a new one.
+    var prevoius_map = scene.getObjectByName("map");
+    if (prevoius_map !== undefined) {
+        scene.remove(prevoius_map);
+    }
+    // Create the entity and collider in the World.
+    game_structure.create_map(heightmap);
+    // Create the threejs object from points.
+    // Define the boundaries
+    var map_width = 1000;
+    var map_height = 1000;
+    // Divde the bounderies into equal parts for each of the Vectors
+    var map_width_factor = map_width / heightmap.length;
+    var map_height_factor = map_height / heightmap.length;
+    // This means that a value of 1.0 in the heightmap is equal to the depth factior.
+    var map_depth_factor = 100;
+    var geometry = new THREE.BufferGeometry();
+    var mesh;
+    var indices = [];
+    var vertices = [];
+    var normals = [];
+    var colors = [];
+    var size = map_width;
+    var segments = heightmap.length - 1;
+    var halfSize = size / 2;
+    var segmentSize = size / segments;
+    // generate vertices, normals and color data for a simple grid geometry
+    for (var i = 0; i <= segments; i++) {
+        var z = (i * segmentSize) - halfSize;
+        for (var j = 0; j <= segments; j++) {
+            var x = (j * segmentSize) - halfSize;
+            vertices.push(x, heightmap[i][j] * map_depth_factor, z);
+            normals.push(0, 0, 1);
+            var r = (x / size) + 0.5;
+            var g = (z / size) + 0.5;
+            colors.push(r, g, 1);
+        }
+    }
+    // generate indices (data for element array buffer)
+    for (var i = 0; i < segments; i++) {
+        for (var j = 0; j < segments; j++) {
+            var a = i * (segments + 1) + (j + 1);
+            var b = i * (segments + 1) + j;
+            var c = (i + 1) * (segments + 1) + j;
+            var d = (i + 1) * (segments + 1) + (j + 1);
+            // generate two faces (triangles) per iteration
+            indices.push(a, b, d); // face one
+            indices.push(b, c, d); // face two
+        }
+    }
+    geometry.setIndex(indices);
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    var material = new THREE.MeshPhongMaterial({
+        side: THREE.DoubleSide,
+        vertexColors: true
+    });
+    // Create the mesh out of points and add it to
+    // the scene
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.name = "map";
+    mesh.rotateY(90 * Math.PI / 180);
+    scene.add(mesh);
 }
 function create_object(name) {
     // NOTE: these meshes' geometries are just the same values

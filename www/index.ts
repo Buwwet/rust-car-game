@@ -1,5 +1,6 @@
 import {GameContainer, set_panic_hook, GameObjectContainer, PhysicsType, GameKeys, GameKeysContainer} from "game-test";
 import * as THREE from 'three';
+import { PlaneGeometry } from "three";
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry'
 
 import { GameObject } from '../pkg/game_test';
@@ -8,8 +9,8 @@ import { GameObject } from '../pkg/game_test';
 // Better logging on Errors.
 set_panic_hook();
 
-const CAMERA_DISTANCE: number = 100;
-const CAMERA_WIDTH: number = 20;
+const CAMERA_DISTANCE: number = 500;
+const CAMERA_WIDTH: number = 40;
 
 // Create the 3js scene.
 const scene = new THREE.Scene();
@@ -19,7 +20,7 @@ const camara = new THREE.OrthographicCamera(
     2.4 * CAMERA_WIDTH,  //Top
     -2.4 * CAMERA_WIDTH, //Bottom
     0.01, //Near
-    400,  //Far
+    5000,  //Far
 );
 // Move camera to look at center.
 camara.position.set(-100, 100, -100);
@@ -42,14 +43,13 @@ let game_structure: GameContainer = GameContainer.create();
 let map_heightmap = [
     [0.0, 0.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 5.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
 ];
 
 // Create the map with the heightmap
-game_structure.create_map(map_heightmap);
-    
+load_map(map_heightmap);
 
 // Store keys
 let keys_pressed: GameKeysContainer = GameKeysContainer.new();
@@ -75,7 +75,7 @@ const renderLoop = () => {
         // Check if an object exists with entID and entName
         let object = scene.getObjectByName(entID + entName);
 
-        if (object === undefined) {
+        if (object === undefined && entName != "map00") {
             // Create that object!
             var newObject = create_object(entName);
             
@@ -87,7 +87,7 @@ const renderLoop = () => {
 
             scene.add(newObject);
 
-            console.log(entName + " built!")
+            console.log(entID + entName + " built!")
         } else {
             
             // Check if object is dynamic.
@@ -136,6 +136,105 @@ function update_object(object: THREE.Object3D, gameObject: GameObject) {
     let rot: Array<number> = gameObject.rot();
     object.rotation.set(rot[0], rot[1], rot[2]);
 
+}
+
+function load_map(heightmap: number[][]) {
+    // Delete previous map and add a new one.
+    let prevoius_map = scene.getObjectByName("map");
+    if (prevoius_map !== undefined) {
+        scene.remove(prevoius_map);
+    }
+
+    // Create the entity and collider in the World.
+    game_structure.create_map(heightmap);
+
+    // Create the threejs object from points.
+
+    // Define the boundaries
+    let map_width  = 1000;
+    let map_height = 1000;
+
+    // Divde the bounderies into equal parts for each of the Vectors
+    let map_width_factor = map_width / heightmap.length;
+    let map_height_factor = map_height / heightmap.length;
+
+    // This means that a value of 1.0 in the heightmap is equal to the depth factior.
+    let map_depth_factor = 100;
+
+    const geometry = new THREE.BufferGeometry();
+
+    let mesh;
+
+				const indices = [];
+
+				const vertices = [];
+				const normals = [];
+				const colors = [];
+
+				const size = map_width;
+				const segments = heightmap.length - 1;
+
+				const halfSize = size / 2;
+				const segmentSize = size / segments;
+
+				// generate vertices, normals and color data for a simple grid geometry
+
+				for ( let i = 0; i <= segments; i ++ ) {
+
+					const z = ( i * segmentSize ) - halfSize;
+
+					for ( let j = 0; j <= segments; j ++ ) {
+
+						const x = ( j * segmentSize ) - halfSize;
+						vertices.push( x, heightmap[i][j] * map_depth_factor, z );
+						normals.push( 0, 0, 1 );
+
+						const r = ( x / size ) + 0.5;
+						const g = ( z / size ) + 0.5;
+
+						colors.push( r, g, 1 );
+
+					}
+
+				}
+
+				// generate indices (data for element array buffer)
+
+				for ( let i = 0; i < segments; i ++ ) {
+
+					for ( let j = 0; j < segments; j ++ ) {
+
+						const a = i * ( segments + 1 ) + ( j + 1 );
+						const b = i * ( segments + 1 ) + j;
+						const c = ( i + 1 ) * ( segments + 1 ) + j;
+						const d = ( i + 1 ) * ( segments + 1 ) + ( j + 1 );
+
+						// generate two faces (triangles) per iteration
+
+						indices.push( a, b, d ); // face one
+						indices.push( b, c, d ); // face two
+
+					}
+
+				}
+
+				geometry.setIndex( indices );
+				geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+				geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+				geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+
+				const material = new THREE.MeshPhongMaterial( {
+					side: THREE.DoubleSide,
+					vertexColors: true
+				} );
+
+                // Create the mesh out of points and add it to
+                // the scene
+				mesh = new THREE.Mesh( geometry, material );
+                mesh.name = "map";
+                mesh.rotateY( 90 * Math.PI / 180);
+
+				scene.add( mesh );
 }
 
 function create_object(name: string) {

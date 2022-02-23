@@ -45,6 +45,7 @@ impl GameContainer {
         let mut is = InitSystem {};
         is.run_now(&mut world);
 
+        // Apply the changes done with LazyUpdate to our world.
         world.maintain();
         
         GameContainer {
@@ -97,12 +98,10 @@ impl GameContainer {
         }
 
         // Return the collection to javascript
-
         gameobject_container
     }
 
     pub fn create_map(&mut self, heightmap: Array) {
-
         // Create the rigidbody for our map.
         let rigidbody = RigidBodyBuilder::new_static().build();
 
@@ -149,6 +148,7 @@ impl GameContainer {
 #[wasm_bindgen]
 #[derive(Default, Debug)]
 pub struct GameObjectContainer {
+    // Every time log_entities is ran, an updated instance of this is sent back.
     data: [Option<GameObject>; 32],
     length: usize,
 }
@@ -172,6 +172,7 @@ impl GameObjectContainer {
 
 #[wasm_bindgen]
 #[derive(Clone, Copy, Debug)]
+// This is what gets sent in an array to the Javascript frontend.
 pub struct GameObject {
     name: [char; 5],
     physics: PhysicsType,
@@ -180,7 +181,7 @@ pub struct GameObject {
     rot: [f32; 3],
 }
 
-// Implement getter fuctions.
+// Implement getter fuctions for the frontend.
 #[wasm_bindgen]
 impl GameObject {
     pub fn name(&self) -> JsString {
@@ -227,6 +228,7 @@ pub struct GameKeysContainer {
 }
 
 #[wasm_bindgen]
+// This is a container that the Javascript frontend sends when running the systems.
 impl GameKeysContainer {
     pub fn new() -> GameKeysContainer {
         //GameKeysContainer::default()
@@ -247,6 +249,7 @@ impl GameKeysContainer {
 }
 
 #[wasm_bindgen]
+// Access to basic Javascript commands.
 extern {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
