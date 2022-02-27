@@ -1,6 +1,6 @@
 import {GameContainer, set_panic_hook, GameObjectContainer, PhysicsType, GameKeys, GameKeysContainer} from "game-test";
 import * as THREE from 'three';
-import { PlaneGeometry } from "three";
+import { PlaneGeometry, RepeatWrapping } from "three";
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry'
 
 import { GameObject } from '../pkg/game_test';
@@ -40,9 +40,9 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 let game_structure: GameContainer = GameContainer.create();
 
 let map_heightmap = [
+    [0.0, 0.3, 0.3, 0.3, 0.0],
+    [0.0, 0.3, 0.3, 0.3, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.0, 5.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
 ];
@@ -149,91 +149,105 @@ function load_map(heightmap: number[][]) {
 
     // Create the threejs object from points.
 
-    // Define the boundaries
+    // Define the boundaries of the map in "game units".
     let map_width  = 1000;
     let map_height = 1000;
 
-    // Divde the bounderies into equal parts for each of the Vectors
-    let map_width_factor = map_width / heightmap.length;
-    let map_height_factor = map_height / heightmap.length;
-
-    // This means that a value of 1.0 in the heightmap is equal to the depth factior.
+    // Values of the height map are multiplied by these game units.
     let map_depth_factor = 100;
 
     const geometry = new THREE.BufferGeometry();
-
     let mesh;
 
-				const indices = [];
+    // Define how the vertices are connected.
+    const indices = [];
+    // Position and number of vertices.
+    const vertices = [];
+    const normals = [];
+    // Handles how textures are applied. Example of a plane: https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Faws1.discourse-cdn.com%2Fstandard17%2Fuploads%2Fthreejs%2Foptimized%2F2X%2F6%2F6f3b6cca517d1840321a3bd84bd4eccd01ffa60f_2_1000x1000.jpeg&f=1&nofb=1
+    const uv = []; 
 
-				const vertices = [];
-				const normals = [];
-				const colors = [];
+    /* Here we define the values that we will use for the creation of the new geometry. */
+    const size = map_width;
+    const segments = heightmap.length - 1;
 
-				const size = map_width;
-				const segments = heightmap.length - 1;
+    const halfSize = size / 2;
+    const segmentSize = size / segments;
 
-				const halfSize = size / 2;
-				const segmentSize = size / segments;
+    // Generate vertices, normals and uv data for a simple grid geometry
+    for ( let i = 0; i <= segments; i ++ ) {
 
-				// generate vertices, normals and color data for a simple grid geometry
+        const z = ( i * segmentSize ) - halfSize;
 
-				for ( let i = 0; i <= segments; i ++ ) {
+        for ( let j = 0; j <= segments; j ++ ) {
 
-					const z = ( i * segmentSize ) - halfSize;
+            const x = ( j * segmentSize ) - halfSize;
+            vertices.push( x, heightmap[i][j] * map_depth_factor, z );
+            normals.push( 0, 0, 1 );
 
-					for ( let j = 0; j <= segments; j ++ ) {
+            // Generate the UV indexes for the vertecies
+            let x_factor = i / segments;
+            let y_factor = j / segments;
 
-						const x = ( j * segmentSize ) - halfSize;
-						vertices.push( x, heightmap[i][j] * map_depth_factor, z );
-						normals.push( 0, 0, 1 );
+            uv.push( x_factor, y_factor );
+        }
+    }
+    // generate indices (data for element array buffer)
 
-						const r = ( x / size ) + 0.5;
-						const g = ( z / size ) + 0.5;
+    for ( let i = 0; i < segments; i ++ ) {
 
-						colors.push( r, g, 1 );
+        for ( let j = 0; j < segments; j ++ ) {
 
-					}
+            const a = i * ( segments + 1 ) + ( j + 1 );
+            const b = i * ( segments + 1 ) + j;
+            const c = ( i + 1 ) * ( segments + 1 ) + j;
+            const d = ( i + 1 ) * ( segments + 1 ) + ( j + 1 );
 
-				}
+            // generate two faces (triangles) per iteration
 
-				// generate indices (data for element array buffer)
+            indices.push( a, b, d ); // face one
+            indices.push( b, c, d ); // face two
 
-				for ( let i = 0; i < segments; i ++ ) {
+        }
+    }
 
-					for ( let j = 0; j < segments; j ++ ) {
+    // Apply all of the generated variables to the geometry and index and attributes.
+    geometry.setIndex( indices );
+    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+    geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+    geometry.setAttribute( 'uv', new THREE.Float32BufferAttribute(uv, 2));
 
-						const a = i * ( segments + 1 ) + ( j + 1 );
-						const b = i * ( segments + 1 ) + j;
-						const c = ( i + 1 ) * ( segments + 1 ) + j;
-						const d = ( i + 1 ) * ( segments + 1 ) + ( j + 1 );
+    // Create material with texture
+    const loader = new THREE.TextureLoader();
+    loader.load('resources/textures/texture.jpeg', (texture) => {
+        // Wait for the texture to be loaded and then apply the changes.
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.needsUpdate = true;
+        
+        // Set the repeating constants
+        const imageRepeats = 50;
+        texture.repeat.set(
+            imageRepeats,
+            imageRepeats,
+        );
+        
+        const material = new THREE.MeshBasicMaterial( {
+            map: texture,
+        } );
 
-						// generate two faces (triangles) per iteration
+        // Create the mesh out of points and add it to
+        // the scene
+        mesh = new THREE.Mesh( geometry, material );
+        mesh.name = "map";
+        mesh.rotateY( 90 * Math.PI / 180);
+        
+        mesh.scale.multiply(new THREE.Vector3(-1, 1, 1)) ;
 
-						indices.push( a, b, d ); // face one
-						indices.push( b, c, d ); // face two
-
-					}
-
-				}
-
-				geometry.setIndex( indices );
-				geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-				geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
-				geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-
-				const material = new THREE.MeshPhongMaterial( {
-					side: THREE.DoubleSide,
-					vertexColors: true
-				} );
-
-                // Create the mesh out of points and add it to
-                // the scene
-				mesh = new THREE.Mesh( geometry, material );
-                mesh.name = "map";
-                mesh.rotateY( 90 * Math.PI / 180);
-
-				scene.add( mesh );
+        // Return the map!
+        scene.add( mesh );
+    });
+                
 }
 
 function create_object(name: string) {

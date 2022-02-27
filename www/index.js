@@ -28,9 +28,9 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 // Create the game structure
 var game_structure = game_test_1.GameContainer.create();
 var map_heightmap = [
+    [0.0, 0.3, 0.3, 0.3, 0.0],
+    [0.0, 0.3, 0.3, 0.3, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.0, 5.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 0.0],
 ];
@@ -110,34 +110,36 @@ function load_map(heightmap) {
     // Create the entity and collider in the World.
     game_structure.create_map(heightmap);
     // Create the threejs object from points.
-    // Define the boundaries
+    // Define the boundaries of the map in "game units".
     var map_width = 1000;
     var map_height = 1000;
-    // Divde the bounderies into equal parts for each of the Vectors
-    var map_width_factor = map_width / heightmap.length;
-    var map_height_factor = map_height / heightmap.length;
-    // This means that a value of 1.0 in the heightmap is equal to the depth factior.
+    // Values of the height map are multiplied by these game units.
     var map_depth_factor = 100;
     var geometry = new THREE.BufferGeometry();
     var mesh;
+    // Define how the vertices are connected.
     var indices = [];
+    // Position and number of vertices.
     var vertices = [];
     var normals = [];
-    var colors = [];
+    // Handles how textures are applied. Example of a plane: https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Faws1.discourse-cdn.com%2Fstandard17%2Fuploads%2Fthreejs%2Foptimized%2F2X%2F6%2F6f3b6cca517d1840321a3bd84bd4eccd01ffa60f_2_1000x1000.jpeg&f=1&nofb=1
+    var uv = [];
+    /* Here we define the values that we will use for the creation of the new geometry. */
     var size = map_width;
     var segments = heightmap.length - 1;
     var halfSize = size / 2;
     var segmentSize = size / segments;
-    // generate vertices, normals and color data for a simple grid geometry
+    // Generate vertices, normals and uv data for a simple grid geometry
     for (var i = 0; i <= segments; i++) {
         var z = (i * segmentSize) - halfSize;
         for (var j = 0; j <= segments; j++) {
             var x = (j * segmentSize) - halfSize;
             vertices.push(x, heightmap[i][j] * map_depth_factor, z);
             normals.push(0, 0, 1);
-            var r = (x / size) + 0.5;
-            var g = (z / size) + 0.5;
-            colors.push(r, g, 1);
+            // Generate the UV indexes for the vertecies
+            var x_factor = i / segments;
+            var y_factor = j / segments;
+            uv.push(x_factor, y_factor);
         }
     }
     // generate indices (data for element array buffer)
@@ -152,20 +154,33 @@ function load_map(heightmap) {
             indices.push(b, c, d); // face two
         }
     }
+    // Apply all of the generated variables to the geometry and index and attributes.
     geometry.setIndex(indices);
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
     geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-    var material = new THREE.MeshPhongMaterial({
-        side: THREE.DoubleSide,
-        vertexColors: true
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+    // Create material with texture
+    var loader = new THREE.TextureLoader();
+    loader.load('resources/textures/texture.jpeg', function (texture) {
+        // Wait for the texture to be loaded and then apply the changes.
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.needsUpdate = true;
+        // Set the repeating constants
+        var imageRepeats = 50;
+        texture.repeat.set(imageRepeats, imageRepeats);
+        var material = new THREE.MeshBasicMaterial({
+            map: texture
+        });
+        // Create the mesh out of points and add it to
+        // the scene
+        mesh = new THREE.Mesh(geometry, material);
+        mesh.name = "map";
+        mesh.rotateY(90 * Math.PI / 180);
+        mesh.scale.multiply(new THREE.Vector3(-1, 1, 1));
+        // Return the map!
+        scene.add(mesh);
     });
-    // Create the mesh out of points and add it to
-    // the scene
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.name = "map";
-    mesh.rotateY(90 * Math.PI / 180);
-    scene.add(mesh);
 }
 function create_object(name) {
     // NOTE: these meshes' geometries are just the same values
